@@ -1,0 +1,15 @@
+services:
+  bot:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      HOME: /data
+      XDG_CACHE_HOME: /data/.cache
+      XDG_CONFIG_HOME: /data/.config
+      XDG_STATE_HOME: /data/.local/state
+    volumes:
+      - nxapi-data:/data
+
+volumes:
+  nxapi-data:
