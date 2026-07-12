@@ -7,13 +7,13 @@ const visibilityOption = option => option
 export const commands = [
   new SlashCommandBuilder()
     .setName('login')
-    .setDescription('Nintendoアカウントへ非公開でログインします'),
+    .setDescription('Nintendoアカウントに非公開でログイン'),
   new SlashCommandBuilder()
     .setName('account')
     .setDescription('自分のNintendoアカウントのログイン状態を確認します'),
   new SlashCommandBuilder()
     .setName('logout')
-    .setDescription('自分のNintendo認証情報をこのBotから削除します'),
+    .setDescription('ログアウトします'),
   new SlashCommandBuilder()
     .setName('nxapi-status')
     .setDescription('Botとnxapiの稼働状態を確認します'),
@@ -33,13 +33,13 @@ export const commands = [
       )),
   new SlashCommandBuilder()
     .setName('salmon')
-    .setDescription('サーモンラン予定を表示します'),
+    .setDescription('サーモンランの予定を表示します'),
   new SlashCommandBuilder()
     .setName('event')
-    .setDescription('イベントマッチ予定を表示します'),
+    .setDescription('イベントマッチの予定を表示します'),
   new SlashCommandBuilder()
     .setName('fest')
-    .setDescription('フェスマッチ予定を表示します'),
+    .setDescription('フェスマッチの予定を表示します'),
   new SlashCommandBuilder()
     .setName('qr')
     .setDescription('文字列やURLからQRコードを生成します')
@@ -47,12 +47,12 @@ export const commands = [
       .setName('text').setDescription('QRコードに埋め込む内容').setRequired(true).setMaxLength(1000)),
   new SlashCommandBuilder()
     .setName('twitter-video')
-    .setDescription('保存が許可されたX/Twitter動画を取得します')
+    .setDescription('X/Twitter動画を取得します')
     .addStringOption(option => option
       .setName('url').setDescription('X/Twitter投稿のURL').setRequired(true)),
   new SlashCommandBuilder()
     .setName('youtube-video')
-    .setDescription('保存が許可されたYouTube動画を取得します')
+    .setDescription('YouTube動画を取得します 今、音がたまにバグるので注意')
     .addStringOption(option => option
       .setName('url').setDescription('YouTube動画のURL').setRequired(true)),
   new SlashCommandBuilder()
@@ -71,4 +71,31 @@ export const commands = [
     .addIntegerOption(option => option
       .setName('limit').setDescription('表示件数（既定10件）').setMinValue(1).setMaxValue(20))
     .addBooleanOption(visibilityOption),
+  new SlashCommandBuilder()
+    .setName('play-status')
+    .setDescription('フレンドのオンライン状態とプレイ中のゲームを表示します'),
+  new SlashCommandBuilder()
+    .setName('web-services')
+    .setDescription('利用可能なNintendo Switch Online連携サービスを表示します'),
+  new SlashCommandBuilder()
+    .setName('friend-code')
+    .setDescription('自分のフレンドコードとQRコードを表示します'),
+  new SlashCommandBuilder()
+    .setName('friend-request')
+    .setDescription('フレンドコードを確認してフレンド申請します')
+    .addStringOption(option => option
+      .setName('code').setDescription('SW-0000-0000-0000').setRequired(true)),
+  new SlashCommandBuilder()
+    .setName('spla-profile')
+    .setDescription('SplatNet 3のプロフィールを表示します'),
+  new SlashCommandBuilder()
+    .setName('spla-battles')
+    .setDescription('SplatNet 3の最新バトル記録を取得します'),
+  new SlashCommandBuilder()
+    .setName('spla-salmon-results')
+    .setDescription('SplatNet 3の最新バイト記録を取得します'),
+  new SlashCommandBuilder()
+    .setName('spla-fest-result')
+    .setDescription('SplatNet 3のフェス記録を取得します'),
 ].map(command => command.toJSON());
+
