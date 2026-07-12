@@ -1,0 +1,20 @@
+{
+  "name": "nxapi-discord-bot",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Discord bot powered by nxapi for Nintendo Switch Online and Splatoon 3",
+  "scripts": {
+    "start": "node src/index.js",
+    "register": "node src/register-commands.js",
+    "check": "node --check src/index.js && node --check src/nxapi.js && node --check src/public-api.js && node --check src/media.js && node --check src/commands.js && node --check src/register-commands.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.21.0",
+    "dotenv": "^16.6.0",
+    "qrcode": "^1.5.4"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
