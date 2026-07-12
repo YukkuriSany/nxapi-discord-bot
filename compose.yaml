@@ -1,6 +1,9 @@
 services:
   bot:
-    build: .
+    build:
+      context: .
+      args:
+        NXAPI_GIT_REF: ${NXAPI_GIT_REF:-main}
     restart: unless-stopped
     env_file: .env
     environment:
