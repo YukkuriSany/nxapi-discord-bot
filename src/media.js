@@ -24,7 +24,11 @@ export async function downloadVideo(urlText, service, discordLimitBytes) {
     await runYtDlp([
       '--no-playlist', '--no-progress', '--restrict-filenames',
       '--max-filesize', String(effectiveMaxBytes),
-      '--format', 'bv*[height<=720]+ba/b[height<=720]/b',
+      '--format', [
+        'bv*[vcodec^=avc1][height<=720]+ba[ext=m4a]',
+        'b[vcodec^=avc1][height<=720][ext=mp4]',
+        'bv*[height<=720]+ba/b[height<=720]/b',
+      ].join('/'),
       '--merge-output-format', 'mp4',
       '--output', path.join(directory, '%(title).80B-%(id)s.%(ext)s'),
       url.toString(),
@@ -32,17 +36,32 @@ export async function downloadVideo(urlText, service, discordLimitBytes) {
     const files = (await readdir(directory))
       .filter(name => !name.endsWith('.part') && !name.endsWith('.ytdl'));
     if (!files.length) throw new Error(`動画を取得できませんでした。上限${effectiveMaxLabel}MiBを超えている可能性があります`);
-    const filePath = path.join(directory, files[0]);
+    const downloadedPath = path.join(directory, files[0]);
+    const filePath = await normalizeAudioForDiscord(downloadedPath, directory);
     if ((await stat(filePath)).size > effectiveMaxBytes) throw new Error(`動画が上限の${effectiveMaxLabel}MiBを超えています`);
     return {
       data: await readFile(filePath),
-      name: safeFilename(files[0]),
+      name: safeFilename(path.parse(files[0]).name + '.mp4'),
       cleanup: () => rm(directory, { recursive: true, force: true }),
     };
   } catch (error) {
     await rm(directory, { recursive: true, force: true });
     throw error;
   }
+}
+
+async function normalizeAudioForDiscord(inputPath, directory) {
+  const outputPath = path.join(directory, 'discord-compatible.mp4');
+  await runProcess('ffmpeg', [
+    '-hide_banner', '-loglevel', 'error', '-y',
+    '-i', inputPath,
+    '-map', '0:v:0', '-map', '0:a:0?',
+    '-c:v', 'copy',
+    '-c:a', 'aac', '-profile:a', 'aac_low', '-b:a', '128k', '-ar', '48000',
+    '-movflags', '+faststart',
+    outputPath,
+  ], '音声の変換に失敗しました');
+  return outputPath;
 }
 
 function validateUrl(value, service) {
@@ -54,8 +73,12 @@ function validateUrl(value, service) {
 }
 
 function runYtDlp(args) {
+  return runProcess('yt-dlp', args, '動画を取得できませんでした', mediaError);
+}
+
+function runProcess(command, args, defaultError, errorFormatter) {
   return new Promise((resolve, reject) => {
-    const child = spawn('yt-dlp', args, { stdio: ['ignore', 'ignore', 'pipe'], windowsHide: true });
+    const child = spawn(command, args, { stdio: ['ignore', 'ignore', 'pipe'], windowsHide: true });
     let stderr = '';
     let timedOut = false;
     const timer = setTimeout(() => { timedOut = true; child.kill('SIGTERM'); }, timeoutMs);
@@ -64,7 +87,7 @@ function runYtDlp(args) {
     child.on('close', code => {
       clearTimeout(timer);
       if (timedOut) return reject(new Error('動画取得がタイムアウトしました'));
-      if (code !== 0) return reject(new Error(mediaError(stderr)));
+      if (code !== 0) return reject(new Error(errorFormatter ? errorFormatter(stderr) : defaultError));
       resolve();
     });
   });
