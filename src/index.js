@@ -278,12 +278,23 @@ function findArray(value) {
 function friendlyError(error) {
   const message = error instanceof Error ? error.message : '不明なエラーです';
   if (/Remote configuration prevents Coral authentication/i.test(message)) {
-    return '現在nxapi側でNintendo Switch Online認証が停止されています。Botや入力内容の問題ではありません。nxapiがNintendo Switch Appの更新へ対応するまで、ログインと個人データ機能は利用できません。';
+    return [
+      '現在nxapi側でNintendo Switch Online認証が停止されています。Botや入力内容の問題ではありません。ログインと個人データ機能は現在利用できません。',
+      '',
+      `nxapiエラー: \`${sanitizeErrorForUser(message)}\``,
+    ].join('\n');
   }
   if (/No token|no user|not authenticated|NintendoAccountToken\.undefined/i.test(message)) {
     return 'まだログインしていません。先に /login を実行してください。';
   }
   return inline(message.slice(0, 500));
+}
+
+function sanitizeErrorForUser(message) {
+  return inline(message)
+    .replace(/Session token\s+\S+/gi, 'Session token [REDACTED]')
+    .replace(/[A-Za-z0-9_-]{40,}/g, '[REDACTED]')
+    .slice(0, 700);
 }
 
 function safeLog(error) {
