@@ -18,8 +18,16 @@
 - `/spla-user` — SplatNet 3プロフィール
 - `/spla-friends [limit]` — Splatoon 3フレンド
 - `/nso-friends [limit]` — Nintendo Switchフレンド
+- `/play-status` — フレンドのオンライン状態・プレイ中ゲーム
+- `/web-services` — 利用可能なゲーム連携サービス
+- `/friend-code` — フレンドコードとQRコード
+- `/friend-request <code>` — 確認ボタン付きフレンド申請
+- `/spla-profile` — SplatNet 3プロフィール
+- `/spla-battles` — 最新バトル記録を取得
+- `/spla-salmon-results` — 最新バイト記録を取得
+- `/spla-fest-result` — フェス記録を取得
 
-ログイン情報はDiscordユーザーIDごとに分離して保存されます。`/login`、`/account`、`/logout`の応答は常に実行者だけに見えるephemeral応答です。プロフィールとフレンド一覧も既定では非公開で、`public:true`を指定した場合だけチャンネルへ公開されます。
+ログイン情報はDiscordユーザーIDごとに分離して保存されます。`/login` と `/logout` は実行者だけに見えるephemeral応答です。`/account` はNintendoアカウント名を除外してチャンネルへ公開されます。今回追加した情報表示コマンドもチャンネルへ公開されます。フレンド申請の確認メッセージは公開されますが、確定ボタンはコマンド実行者しか使用できません。
 
 公開スケジュール機能は[Spla3 API](https://spla3.yuu26.com/)を利用します。取得結果はAPI負荷軽減のため60秒間キャッシュします。
 
@@ -59,3 +67,4 @@ docker compose up -d
 ```
 
 `.env` とNintendo認証データをGitへ追加しないでください。nxapiはNintendoの非公開APIをリバースエンジニアリングした非公式ツールです。Nintendo側の変更で動かなくなる可能性や、アカウントへのリスクがあります。また、認証時に一時トークンがnxapiの認証補助サーバーへ送られる仕様を理解したうえで利用してください。
+
