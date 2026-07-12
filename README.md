@@ -35,6 +35,8 @@
 docker compose build
 ```
 
+Dockerビルド時に[nxapiのGitHubリポジトリ](https://github.com/samuelthomas2774/nxapi)から`main`ブランチを取得し、TypeScriptをコンパイルしてインストールします。npmレジストリの旧版は使用しません。固定したい場合は`.env`の`NXAPI_GIT_REF`へタグまたはブランチ名を指定します。ソースビルドではnxapi-authクライアントIDが必要になる場合があるため、その場合は`.env`の`NXAPI_AUTH_CLIENT_ID`を設定してください。
+
 4. Discordコマンドを登録してBotを起動します。
 
 ```sh
