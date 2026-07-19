@@ -162,7 +162,8 @@ async function handleCommand(interaction) {
       .setCustomId(`friend_request:${key}`).setLabel('この相手に申請する').setStyle(ButtonStyle.Danger));
     await interaction.editReply({ embeds: [friendRequestEmbed(target, code)], components: [row] });
   } else if (name === 'spla-profile') {
-    const data = await runNxapi(['splatnet3', 'user'], { json: true, userId: interaction.user.id });
+    const output = await runNxapi(['splatnet3', 'user'], { userId: interaction.user.id });
+    const data = parseInspectableOutput(output);
     await interaction.editReply({ embeds: [genericDataEmbed('SplatNet 3 プロフィール', data)] });
   } else if (name === 'spla-battles') {
     await runNxapi(['splatnet3', 'dump-results', '--battles'], { userId: interaction.user.id });
@@ -372,6 +373,20 @@ function parseNxapiUserOutput(output) {
       friendCode,
     },
   };
+}
+
+function parseInspectableOutput(output) {
+  const result = {};
+  const blocked = /token|secret|session|credential|email|birthday|supportId|correlation/i;
+  for (const line of String(output).split(/\r?\n/)) {
+    const match = line.match(/^\s*([A-Za-z][A-Za-z0-9_]*)\s*:\s*(?:'([^']*)'|"([^"]*)"|([^,{}\[\]]+))\s*,?\s*$/);
+    if (!match || blocked.test(match[1])) continue;
+    const value = (match[2] ?? match[3] ?? match[4]).trim();
+    if (!value || value === '[Object]' || value === 'null' || value === 'undefined') continue;
+    if (!(match[1] in result)) result[match[1]] = value;
+  }
+  if (!Object.keys(result).length) result.status = 'プロフィールを取得しましたが、表示可能な項目がありませんでした';
+  return result;
 }
 
 function playStatusEmbed(data) {
